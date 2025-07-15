@@ -1,0 +1,203 @@
+#%RAML 1.0
+annotationTypes:
+  amf-serverDescription:
+    type: any
+  amf-exclusiveMinimum:
+    type: any
+  amf-binding:
+    type: any
+  amf-pattern:
+    type: any
+  amf-payloads:
+    type: any
+  amf-exclusiveMaximum:
+    type: any
+  amf-consumes:
+    type: any
+  amf-additionalProperties:
+    type: any
+  amf-or:
+    type: any
+  amf-url:
+    type: any
+  amf-externalDocs:
+    type: any
+  amf-flow:
+    type: any
+  amf-oasDeprecated:
+    type: any
+  amf-contact:
+    type: any
+  amf-multipleOf:
+    type: any
+  amf-xor:
+    type: any
+  amf-not:
+    type: any
+  amf-callbacks:
+    type: any
+  amf-produces:
+    type: any
+  amf-format:
+    type: any
+  amf-license:
+    type: any
+  amf-summary:
+    type: any
+  amf-responses:
+    type: any
+  amf-maximum:
+    type: any
+  amf-tags:
+    type: any
+  amf-dependencies:
+    type: any
+  amf-readOnly:
+    type: any
+  sfdc:
+    type: any
+  amf-tuple:
+    type: any
+  amf-examples:
+    type: any
+  amf-collectionFormat:
+    type: any
+  amf-termsOfService:
+    type: any
+  amf-servers:
+    type: any
+  amf-xone:
+    type: any
+  amf-defaultResponse:
+    type: any
+  amf-baseUriParameters:
+    type: any
+  amf-parameters:
+    type: any
+  amf-minimum:
+    type: any
+  amf-recursive:
+    type: any
+  amf-and:
+    type: any
+title: Hotel Reservations API
+description: API to manage hotel room bookings, check availability, and apply loyalty benefits.
+version: 1.0.0
+/reservations:
+  post:
+    displayName: reservationCreate
+    description: Book a hotel room with specified preferences and apply loyalty upgrades if eligible.
+    (amf-summary): Create a new hotel reservation
+    queryParameters:
+      source:
+        description: Source of the reservation request (e.g., web, mobile app, agent).
+        required: false
+        type: string
+    body:
+      application/json:
+        (sfdc):
+          agent:
+            action:
+              isUserInput: true
+        type: object
+        additionalProperties: false
+        properties:
+          customerId?:
+            description: Unique identifier of the customer making the reservation.
+            type: string
+          checkInDate?:
+            description: Date of check-in for the reservation.
+            type: string
+          checkOutDate?:
+            description: Date of check-out for the reservation.
+            type: string
+          roomType?:
+            description: Preferred room type for the reservation.
+            type: string
+          specialRequests?:
+            description: Additional requests like pillow type or air freshener choice.
+            type: string
+    responses:
+      "201":
+        description: Reservation successfully created.
+        body:
+          application/json:
+            (sfdc):
+              agent:
+                action:
+                  isDisplayable: true
+              privacy:
+                isPii: true
+            type: object
+            additionalProperties: false
+            properties:
+              reservationId?:
+                description: Unique identifier of the created reservation.
+                type: string
+              upgradeApplied?:
+                description: Indicates whether a loyalty-based upgrade was applied.
+                type: boolean
+              totalPrice?:
+                description: Final price after applying any discounts or upgrades.
+                type: number
+    (sfdc):
+      agent:
+        action:
+          publishAsAgentAction: true
+/reservations/{reservationID}:
+  get:
+    displayName: reservationRetrieve
+    description: Get details of a specific reservation by ID.
+    (amf-summary): Retrieve reservation details
+    responses:
+      "200":
+        description: Reservation details retrieved successfully.
+        body:
+          application/json:
+            (sfdc):
+              agent:
+                action:
+                  isDisplayable: true
+              privacy:
+                isPii: true
+            type: object
+            additionalProperties: false
+            properties:
+              reservationId?:
+                description: Unique identifier of the reservation.
+                type: string
+              customerId?:
+                description: Unique identifier of the customer who booked the reservation.
+                type: string
+              roomType?:
+                description: Type of room booked for the reservation.
+                type: string
+              checkInDate?:
+                description: Check-in date of the reservation.
+                type: string
+              checkOutDate?:
+                description: Check-out date of the reservation.
+                type: string
+              upgradeApplied?:
+                description: Indicates whether a loyalty-based upgrade was applied.
+                type: boolean
+    (sfdc):
+      agent:
+        action:
+          publishAsAgentAction: true
+  uriParameters:
+    reservationID:
+      description: Unique identifier of the reservation to be retrieved.
+      type: string
+(sfdc):
+  agent:
+    topic:
+      name: Hotel_Room_Reservation
+      classificationDescription: This API allows agents to book, modify, and cancel hotel reservations, as well as apply loyalty upgrades.
+      scope: Your job is to assist customers in booking hotel rooms based on their preferences, loyalty status, and availability. You should also be able to recommend upgrades if the customer qualifies.
+      instructions:
+        - Always check the customer's loyalty status before finalizing the booking.
+        - If the customer asks to create a reservation, check for a check-in date, checkout date, roomType, or any special requests.
+        - If the preferred room type is unavailable, suggest alternative options with similar amenities.
+        - Never confirm a reservation without validating payment information.
+        - If the customer qualifies for an upgrade, apply it automatically and notify them.
